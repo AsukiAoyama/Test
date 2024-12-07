@@ -40,8 +40,9 @@
             console.log(`Heard: ${speech}`);
 
             if (mode === "keyword" && speech === "data") {
-                statusDiv.innerText = 'Keyword detected! Awaiting color input...';
-                speak("Yes master");
+                // When "Data" is heard, say "Yes master" in a male voice and display it on screen
+                statusDiv.innerText = 'Yes master';
+                speak("Yes master"); // Speak "Yes master" in male voice
                 mode = "color"; // Switch mode to listen for color
                 recognition.start(); // Restart to listen for the color
             } else if (mode === "color") {
