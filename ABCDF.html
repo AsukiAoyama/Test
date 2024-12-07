@@ -37,7 +37,7 @@
         const recognition = new SpeechRecognition();
         recognition.lang = 'en-US';
         recognition.interimResults = false;
-        recognition.continuous = false; // Non-continuous mode for better control
+        recognition.continuous = true; // Keep listening continuously
 
         let mode = "keyword"; // Initial mode: "keyword" or "sentence"
 
@@ -50,29 +50,24 @@
                 statusDiv.innerText = 'Yes master';
                 speak("Yes master");
                 mode = "sentence"; // Switch mode to listen for the sentence
-                recognition.start(); // Restart to listen for the sentence
             } else if (mode === "sentence") {
                 processResponse(speech);
                 mode = "keyword"; // Reset mode to listen for the keyword again
                 statusDiv.innerText = 'Waiting for "Data"...';
-                recognition.start(); // Restart to listen for the keyword again
             }
         };
 
         recognition.onerror = (event) => {
             statusDiv.innerText = `Error: ${event.error}`;
             mode = "keyword"; // Reset to keyword mode in case of an error
-            recognition.start(); // Restart to keep listening
         };
 
         recognition.onend = () => {
             // Automatically restart recognition to maintain continuous interaction
-            if (mode === "keyword" || mode === "sentence") {
-                recognition.start();
-            }
+            recognition.start();
         };
 
-        // Automatically start recognition
+        // Start the recognition to keep it active and continuously listen
         recognition.start();
 
         function processResponse(sentence) {
@@ -95,7 +90,7 @@
                     break;
             }
             responseDiv.innerText = responseText;
-            speak(responseText);
+            speak(responseText); // Speak the response aloud
         }
 
         function speak(message) {
