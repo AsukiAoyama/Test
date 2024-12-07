@@ -3,102 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Voice Activated Response System</title>
-    <script src="https://code.responsivevoice.org/responsivevoice.js?key=your-api-key"></script>
+    <title>Voice Recognition with Male Voice Response</title>
+    <script src="https://code.responsivevoice.org/responsivevoice.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
             text-align: center;
             margin-top: 50px;
-            transition: background-color 0.5s ease;
+        }
+        h1 {
+            font-size: 24px;
+        }
+        p {
+            font-size: 18px;
         }
         #status {
             margin-top: 20px;
             font-size: 20px;
             color: blue;
         }
-        #response {
-            margin-top: 20px;
-            font-size: 25px;
-            font-weight: bold;
-        }
     </style>
 </head>
 <body>
-    <h1>Voice Activated Response System</h1>
-    <p>Say "Data" to activate listening, then ask a question or greet.</p>
-    <div id="status">Waiting for "Data"...</div>
-    <div id="response"></div>
+    <h1>Voice Recognition Example</h1>
+    <p>Say "Data" to trigger the response.</p>
+    <div id="status">Listening for "Data"...</div>
 
     <script>
+        // Status message for feedback
         const statusDiv = document.getElementById('status');
-        const responseDiv = document.getElementById('response');
 
+        // Set up the SpeechRecognition API
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         const recognition = new SpeechRecognition();
         recognition.lang = 'en-US';
         recognition.interimResults = false;
-        recognition.continuous = true; // Keep listening continuously
+        recognition.continuous = true; // Keep listening
 
-        let mode = "keyword"; // Initial mode: "keyword" or "sentence"
-
-        recognition.onresult = (event) => {
-            const speech = event.results[0][0].transcript.trim().toLowerCase();
-            console.log(`Heard: ${speech}`);
-
-            if (mode === "keyword" && speech === "data") {
-                // When "Data" is heard, say "Yes master" and display it on screen
-                statusDiv.innerText = 'Yes master';
-                speak("Yes master");
-                mode = "sentence"; // Switch mode to listen for the sentence
-            } else if (mode === "sentence") {
-                processResponse(speech);
-                mode = "keyword"; // Reset mode to listen for the keyword again
-                statusDiv.innerText = 'Waiting for "Data"...';
-            }
-        };
-
-        recognition.onerror = (event) => {
-            statusDiv.innerText = `Error: ${event.error}`;
-            mode = "keyword"; // Reset to keyword mode in case of an error
-        };
-
-        recognition.onend = () => {
-            // Automatically restart recognition to maintain continuous interaction
-            recognition.start();
-        };
-
-        // Start the recognition to keep it active and continuously listen
+        // Start recognition
         recognition.start();
 
-        function processResponse(sentence) {
-            let responseText = "";
-            switch (sentence) {
-                case "hello":
-                    responseText = "Hello! How can I assist you today?";
-                    break;
-                case "how are you":
-                    responseText = "I'm doing great, thank you for asking!";
-                    break;
-                case "what's your name":
-                    responseText = "I am Data, your voice assistant.";
-                    break;
-                case "goodbye":
-                    responseText = "Goodbye! Have a great day!";
-                    break;
-                default:
-                    responseText = "Sorry, I didn't quite understand that.";
-                    break;
-            }
-            responseDiv.innerText = responseText;
-            speak(responseText); // Speak the response aloud
-        }
+        // Handle recognized speech
+        recognition.onresult = (event) => {
+            const speech = event.results[event.results.length - 1][0].transcript.trim().toLowerCase();
+            console.log(`Heard: ${speech}`); // Debugging log
 
-        // Use ResponsiveVoice for speech synthesis with a male voice
-        function speak(message) {
-            // Use the male voice (available in ResponsiveVoice)
-            responsiveVoice.speak(message, "UK English Male");
+            if (speech === "data") {
+                statusDiv.innerText = 'Recognized: "Data". Responding...';
+                respondToData();
+            }
+        };
+
+        // Handle errors
+        recognition.onerror = (event) => {
+            console.error(`Error occurred: ${event.error}`);
+            statusDiv.innerText = `Error: ${event.error}`;
+        };
+
+        // Restart recognition after it ends
+        recognition.onend = () => {
+            recognition.start(); // Ensure continuous listening
+        };
+
+        // Respond to "Data"
+        function respondToData() {
+            const response = "Hello";
+            responsiveVoice.speak(response, "UK English Male");
         }
     </script>
 </body>
 </html>
+
