@@ -41,7 +41,7 @@
 
             if (mode === "keyword" && speech === "data") {
                 statusDiv.innerText = 'Keyword detected! Awaiting color input...';
-                speak("Yes master, what color do you want?");
+                speak("Yes master");
                 mode = "color"; // Switch mode to listen for color
                 recognition.start(); // Restart to listen for the color
             } else if (mode === "color") {
@@ -84,7 +84,15 @@
 
         function speak(message) {
             const utterance = new SpeechSynthesisUtterance(message);
-            utterance.voice = window.speechSynthesis.getVoices().find(voice => voice.name.includes("Google") || voice.name.includes("Microsoft")) || null;
+            
+            // Get all available voices
+            const voices = window.speechSynthesis.getVoices();
+            // Try to select a male voice (first male voice if available)
+            const maleVoice = voices.find(voice => voice.name.includes("Google") && voice.lang === "en-US" && voice.name.includes("Male"));
+            
+            // If no male voice is found, fall back to default voice
+            utterance.voice = maleVoice || voices[0];
+
             window.speechSynthesis.speak(utterance);
         }
     </script>
