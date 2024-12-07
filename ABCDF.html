@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Voice Activated Response System</title>
+    <script src="https://code.responsivevoice.org/responsivevoice.js?key=your-api-key"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -93,18 +94,10 @@
             speak(responseText); // Speak the response aloud
         }
 
+        // Use ResponsiveVoice for speech synthesis with a male voice
         function speak(message) {
-            const utterance = new SpeechSynthesisUtterance(message);
-            
-            // Get all available voices
-            const voices = window.speechSynthesis.getVoices();
-            // Try to select a male voice (first male voice if available)
-            const maleVoice = voices.find(voice => voice.name.includes("Google") && voice.lang === "en-US" && voice.name.includes("Male"));
-            
-            // If no male voice is found, fall back to default voice
-            utterance.voice = maleVoice || voices[0];
-
-            window.speechSynthesis.speak(utterance);
+            // Use the male voice (available in ResponsiveVoice)
+            responsiveVoice.speak(message, "UK English Male");
         }
     </script>
 </body>
