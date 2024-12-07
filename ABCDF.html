@@ -72,10 +72,10 @@
             if (colors.includes(color)) {
                 document.body.style.backgroundColor = color;
                 statusDiv.innerText = `Background changed to ${color}`;
-                speak(`Changing the background to ${color}`);
+                speak(`Changing the background to ${color}.`);
             } else {
                 statusDiv.innerText = `Invalid color: "${color}"`;
-                speak(`Sorry, I don't recognize the color ${color}`);
+                speak(`Sorry, I don't recognize the color ${color}.`);
             }
         }
 
@@ -87,4 +87,3 @@
     </script>
 </body>
 </html>
-
