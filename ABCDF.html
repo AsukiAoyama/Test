@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Voice Recognition with Male Voice Response</title>
+    <title>Voice Assistant - Data</title>
     <script src="https://code.responsivevoice.org/responsivevoice.js"></script>
     <style>
         body {
@@ -22,16 +22,27 @@
             font-size: 20px;
             color: blue;
         }
+        #response {
+            margin-top: 30px;
+            font-size: 22px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
-    <h1>Voice Recognition Example</h1>
-    <p>Say "Data" to trigger the response.</p>
+    <h1>Voice Assistant: Data</h1>
+    <p>Say "Data" to activate, then give a command:</p>
+    <ul>
+        <li>"How are you?"</li>
+        <li>"Who are you?"</li>
+        <li>"Thank you for your help!"</li>
+    </ul>
     <div id="status">Listening for "Data"...</div>
+    <div id="response"></div>
 
     <script>
-        // Status message for feedback
         const statusDiv = document.getElementById('status');
+        const responseDiv = document.getElementById('response');
 
         // Set up the SpeechRecognition API
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -39,6 +50,8 @@
         recognition.lang = 'en-US';
         recognition.interimResults = false;
         recognition.continuous = true; // Keep listening
+
+        let mode = "keyword"; // Current mode: "keyword" or "command"
 
         // Start recognition
         recognition.start();
@@ -48,9 +61,14 @@
             const speech = event.results[event.results.length - 1][0].transcript.trim().toLowerCase();
             console.log(`Heard: ${speech}`); // Debugging log
 
-            if (speech === "data") {
-                statusDiv.innerText = 'Recognized: "Data". Responding...';
-                respondToData();
+            if (mode === "keyword" && speech === "data") {
+                statusDiv.innerText = 'Recognized: "Data". Listening for a command...';
+                speak("Yes, Master");
+                mode = "command"; // Switch to command mode
+            } else if (mode === "command") {
+                processCommand(speech);
+                mode = "keyword"; // Reset to keyword mode
+                statusDiv.innerText = 'Listening for "Data"...';
             }
         };
 
@@ -65,12 +83,36 @@
             recognition.start(); // Ensure continuous listening
         };
 
-        // Respond to "Data"
-        function respondToData() {
-            const response = "Hello";
-            responsiveVoice.speak(response, "UK English Male");
+        // Process specific commands
+        function processCommand(command) {
+            let response = "";
+
+            switch (command) {
+                case "how are you":
+                    response = "I am just a program, but thank you for asking!";
+                    break;
+                case "who are you":
+                    response = "I am Data, your intelligent assistant.";
+                    break;
+                case "thank you for your help":
+                    response = "You're welcome! I'm always here to assist.";
+                    break;
+                default:
+                    response = "I didn't understand that command. Please try again.";
+                    break;
+            }
+
+            // Display response on screen
+            responseDiv.innerText = response;
+
+            // Speak response aloud
+            speak(response);
+        }
+
+        // Use ResponsiveVoice for text-to-speech with a male voice
+        function speak(message) {
+            responsiveVoice.speak(message, "UK English Male");
         }
     </script>
 </body>
 </html>
-
