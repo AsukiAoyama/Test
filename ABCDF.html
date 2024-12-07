@@ -3,82 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Voice Activated Calculator</title>
+    <title>Voice Activated Color Changer</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             text-align: center;
             margin-top: 50px;
+            transition: background-color 0.5s ease;
         }
         #status {
             margin-top: 20px;
             font-size: 20px;
             color: blue;
         }
-        #result {
-            margin-top: 20px;
-            font-size: 24px;
-            color: green;
-        }
     </style>
 </head>
 <body>
-    <h1>Voice Activated Calculator</h1>
-    <p>Say "Computer" to activate listening, then speak your calculation (e.g., "12 plus 8").</p>
+    <h1>Voice Activated Color Changer</h1>
+    <p>Say "Computer" to activate listening, and then specify a color (e.g., "red", "blue").</p>
     <div id="status">Waiting for "Computer"...</div>
-    <div id="result"></div>
 
     <script>
         const statusDiv = document.getElementById('status');
-        const resultDiv = document.getElementById('result');
 
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         const recognition = new SpeechRecognition();
         recognition.lang = 'en-US';
         recognition.interimResults = false;
-        recognition.continuous = true; // For continuous listening
+        recognition.continuous = true; // Continuous listening
 
-        let isListeningForCalculation = false;
+        let isListeningForColor = false;
 
         recognition.onresult = (event) => {
-            const speech = event.results[event.results.length - 1][0].transcript.trim();
+            const speech = event.results[event.results.length - 1][0].transcript.trim().toLowerCase();
             console.log(`Heard: ${speech}`);
-            
-            if (!isListeningForCalculation) {
-                if (speech.toLowerCase() === "computer") {
-                    statusDiv.innerText = 'Keyword detected! Listening for calculation...';
-                    speak("I am listening for your calculation.");
-                    isListeningForCalculation = true;
+
+            if (!isListeningForColor) {
+                if (speech === "computer") {
+                    statusDiv.innerText = 'Keyword detected! Awaiting color input...';
+                    speak("Yes master, what color do you want?");
+                    isListeningForColor = true;
                 }
             } else {
-                resultDiv.innerText = `You said: "${speech}"`;
-
-                try {
-                    // Replace words with operators for calculation
-                    const expression = speech
-                        .toLowerCase()
-                        .replace(/plus/g, '+')
-                        .replace(/minus/g, '-')
-                        .replace(/times|multiplied by/g, '*')
-                        .replace(/divided by|over/g, '/');
-
-                    // Evaluate the expression
-                    const result = eval(expression);
-
-                    if (!isNaN(result)) {
-                        resultDiv.innerText += `\nResult: ${result}`;
-                        speak(`The result is ${result}`);
-                    } else {
-                        throw new Error('Invalid calculation');
-                    }
-                } catch (error) {
-                    resultDiv.innerText += '\nSorry, I could not understand the calculation.';
-                    speak('Sorry, I could not understand the calculation.');
-                }
-
-                // Reset to listening for the keyword
+                changeBackgroundColor(speech);
+                isListeningForColor = false;
                 statusDiv.innerText = 'Waiting for "Computer"...';
-                isListeningForCalculation = false;
             }
         };
 
@@ -86,13 +55,27 @@
             statusDiv.innerText = `Error: ${event.error}`;
         };
 
-        // Start recognition automatically
+        // Automatically start recognition
         recognition.start();
+
+        function changeBackgroundColor(color) {
+            const colors = ["red", "blue", "green", "yellow", "pink", "purple", "black", "white", "gray", "orange"];
+            if (colors.includes(color)) {
+                document.body.style.backgroundColor = color;
+                statusDiv.innerText = `Background changed to ${color}`;
+                speak(`Changing the background to ${color}`);
+            } else {
+                statusDiv.innerText = `Invalid color: "${color}"`;
+                speak(`Sorry, I don't recognize the color ${color}`);
+            }
+        }
 
         function speak(message) {
             const utterance = new SpeechSynthesisUtterance(message);
+            utterance.voice = window.speechSynthesis.getVoices().find(voice => voice.name.includes("Google") || voice.name.includes("Microsoft")) || null;
             window.speechSynthesis.speak(utterance);
         }
     </script>
 </body>
 </html>
+
