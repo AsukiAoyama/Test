@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Activated Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        #status {
+            margin-top: 20px;
+            font-size: 20px;
+            color: blue;
+        }
+        #result {
+            margin-top: 20px;
+            font-size: 24px;
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <h1>Voice Activated Calculator</h1>
+    <p>Say "Computer" to activate listening, then speak your calculation (e.g., "12 plus 8").</p>
+    <div id="status">Waiting for "Computer"...</div>
+    <div id="result"></div>
+
+    <script>
+        const statusDiv = document.getElementById('status');
+        const resultDiv = document.getElementById('result');
+
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'en-US';
+        recognition.interimResults = false;
+        recognition.continuous = true; // For continuous listening
+
+        let isListeningForCalculation = false;
+
+        recognition.onresult = (event) => {
+            const speech = event.results[event.results.length - 1][0].transcript.trim();
+            console.log(`Heard: ${speech}`);
+            
+            if (!isListeningForCalculation) {
+                if (speech.toLowerCase() === "computer") {
+                    statusDiv.innerText = 'Keyword detected! Listening for calculation...';
+                    speak("I am listening for your calculation.");
+                    isListeningForCalculation = true;
+                }
+            } else {
+                resultDiv.innerText = `You said: "${speech}"`;
+
+                try {
+                    // Replace words with operators for calculation
+                    const expression = speech
+                        .toLowerCase()
+                        .replace(/plus/g, '+')
+                        .replace(/minus/g, '-')
+                        .replace(/times|multiplied by/g, '*')
+                        .replace(/divided by|over/g, '/');
+
+                    // Evaluate the expression
+                    const result = eval(expression);
+
+                    if (!isNaN(result)) {
+                        resultDiv.innerText += `\nResult: ${result}`;
+                        speak(`The result is ${result}`);
+                    } else {
+                        throw new Error('Invalid calculation');
+                    }
+                } catch (error) {
+                    resultDiv.innerText += '\nSorry, I could not understand the calculation.';
+                    speak('Sorry, I could not understand the calculation.');
+                }
+
+                // Reset to listening for the keyword
+                statusDiv.innerText = 'Waiting for "Computer"...';
+                isListeningForCalculation = false;
+            }
+        };
+
+        recognition.onerror = (event) => {
+            statusDiv.innerText = `Error: ${event.error}`;
+        };
+
+        // Start recognition automatically
+        recognition.start();
+
+        function speak(message) {
+            const utterance = new SpeechSynthesisUtterance(message);
+            window.speechSynthesis.speak(utterance);
+        }
+    </script>
+</body>
+</html>
