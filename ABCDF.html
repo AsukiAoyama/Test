@@ -30,29 +30,38 @@
         const recognition = new SpeechRecognition();
         recognition.lang = 'en-US';
         recognition.interimResults = false;
-        recognition.continuous = true; // Continuous listening
+        recognition.continuous = false; // Non-continuous mode for better control
 
-        let isListeningForColor = false;
+        let mode = "keyword"; // Initial mode: "keyword" or "color"
 
         recognition.onresult = (event) => {
-            const speech = event.results[event.results.length - 1][0].transcript.trim().toLowerCase();
+            const speech = event.results[0][0].transcript.trim().toLowerCase();
             console.log(`Heard: ${speech}`);
 
-            if (!isListeningForColor) {
-                if (speech === "computer") {
-                    statusDiv.innerText = 'Keyword detected! Awaiting color input...';
-                    speak("Yes master, what color do you want?");
-                    isListeningForColor = true;
-                }
-            } else {
+            if (mode === "keyword" && speech === "computer") {
+                statusDiv.innerText = 'Keyword detected! Awaiting color input...';
+                speak("Yes master, what color do you want?");
+                mode = "color"; // Switch mode to listen for color
+                recognition.start(); // Restart to listen for the color
+            } else if (mode === "color") {
                 changeBackgroundColor(speech);
-                isListeningForColor = false;
+                mode = "keyword"; // Reset mode to listen for the keyword
                 statusDiv.innerText = 'Waiting for "Computer"...';
+                recognition.start(); // Restart to listen for the keyword
             }
         };
 
         recognition.onerror = (event) => {
             statusDiv.innerText = `Error: ${event.error}`;
+            mode = "keyword"; // Reset to keyword mode in case of an error
+            recognition.start(); // Restart to keep listening
+        };
+
+        recognition.onend = () => {
+            // Automatically restart recognition to maintain continuous interaction
+            if (mode === "keyword" || mode === "color") {
+                recognition.start();
+            }
         };
 
         // Automatically start recognition
