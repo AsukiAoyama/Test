@@ -20,11 +20,12 @@
 </head>
 <body>
     <h1>Voice Activated Color Changer</h1>
-    <p>Say "Computer" to activate listening, and then specify a color (e.g., "red", "blue").</p>
-    <div id="status">Waiting for "Computer"...</div>
+    <p>Say "Data" to activate listening, then specify a color (e.g., "red", "blue").</p>
+    <div id="status">Waiting for "Data"...</div>
 
     <script>
         const statusDiv = document.getElementById('status');
+        const heading = document.querySelector('h1');  // <h1> where the color name will be printed
 
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         const recognition = new SpeechRecognition();
@@ -38,7 +39,7 @@
             const speech = event.results[0][0].transcript.trim().toLowerCase();
             console.log(`Heard: ${speech}`);
 
-            if (mode === "keyword" && speech === "computer") {
+            if (mode === "keyword" && speech === "data") {
                 statusDiv.innerText = 'Keyword detected! Awaiting color input...';
                 speak("Yes master, what color do you want?");
                 mode = "color"; // Switch mode to listen for color
@@ -46,7 +47,7 @@
             } else if (mode === "color") {
                 changeBackgroundColor(speech);
                 mode = "keyword"; // Reset mode to listen for the keyword
-                statusDiv.innerText = 'Waiting for "Computer"...';
+                statusDiv.innerText = 'Waiting for "Data"...';
                 recognition.start(); // Restart to listen for the keyword
             }
         };
@@ -71,10 +72,12 @@
             const colors = ["red", "blue", "green", "yellow", "pink", "purple", "black", "white", "gray", "orange"];
             if (colors.includes(color)) {
                 document.body.style.backgroundColor = color;
+                heading.innerText = `Background is now ${color}`;
                 statusDiv.innerText = `Background changed to ${color}`;
                 speak(`Changing the background to ${color}.`);
             } else {
                 statusDiv.innerText = `Invalid color: "${color}"`;
+                heading.innerText = `Sorry, I don't recognize the color ${color}`;
                 speak(`Sorry, I don't recognize the color ${color}.`);
             }
         }
